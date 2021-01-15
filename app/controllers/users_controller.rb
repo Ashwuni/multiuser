@@ -1,7 +1,8 @@
 class UsersController < ApplicationController
   before_action :require_login, except: [:new, :create]
   before_action :set_user, only: [:show, :edit, :update, :destroy]
-
+  before_action :authorized_to_modify_and_destroy, only: [:edit, :update, :destroy]
+ 
   # GET /users
   def index
     @users = User.all
@@ -43,14 +44,23 @@ class UsersController < ApplicationController
 
   # DELETE /users/1
   def destroy
+    if @user == current_user
+        log_out
+    end
     @user.destroy
     redirect_to users_url, notice: 'User was successfully destroyed.'
-  end
-
+  end  
+    
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_user
       @user = User.find(params[:id])
+    end
+    
+    def authorized_to_modify_and_destroy
+       if current_user != @user
+          redirect_to users_url, notice: "You can only edit or delete your own account."
+       end
     end
 
     # Only allow a trusted parameter "white list" through.
