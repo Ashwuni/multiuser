@@ -14,6 +14,13 @@ module SessionsHelper
      # while logged_in.  
      !current_user.nil?
   end    
+
+  def require_login
+    unless logged_in?
+      flash[:notice] = "Please log in."
+      redirect_to login_url 
+    end
+  end    
     
   def current_user
      if !session[:user_id].nil?
